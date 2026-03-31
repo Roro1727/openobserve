@@ -2,14 +2,13 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven3'        // Your Jenkins Maven tool name
-        nodejs 'NodeJS'       // Optional if using Node scripts locally
+      // Optional if using Node scripts locally
         snyk 'SnykLatest'     // Your configured Snyk installation
     }
 
-    environment {
-        // Optional: set Node/npm environment if needed
-        PATH = "${tool 'NodeJS'}/bin:${env.PATH}"
+        environment {
+        MAVEN_HOME = tool 'maven_3_5_0'
+        PATH = "${MAVEN_HOME}/bin:${env.PATH}"
     }
 
     stages {
