@@ -22,12 +22,14 @@ pipeline {
 
         stage('Snyk Security Scan') {
             steps {
+                dir('web') {
                 snykSecurity(
                     snykInstallation: 'SnykLatest',
                     snykTokenId: 'snyk_token',
                     failOnIssues: true,       // fail build if vulnerabilities found
                     severity: 'high'          // threshold: low | medium | high | critical
                 )
+                }
             }
         }
     
