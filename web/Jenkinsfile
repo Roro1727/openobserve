@@ -36,19 +36,19 @@ pipeline {
     
 
         stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        mvn sonar:sonar \
-                          -Dsonar.projectKey=openobserve \
-                          -Dsonar.projectName="Open Observe" \
-                          -Dsonar.sources=web/src \
-                          -Dsonar.javascript.node.maxspace=4096 \
-                          -Dsonar.exclusions=**/node_modules/**,**/*.test.*
-                    '''
-                }
-            }
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh '''
+                mvn sonar:sonar \
+                  -Dsonar.projectKey=jenkins-integration \
+                  -Dsonar.projectName="Jenkins Integration" \
+                  -Dsonar.sources=web/src \
+                  -Dsonar.javascript.node.maxspace=4096 \
+                  -Dsonar.exclusions=**/node_modules/**,**/*.test.*,**/*.spec.*,**/test_logs.json,**/dist/**,**/build/**,**/__tests__/**,**/*.min.js,**/*.d.ts,**/coverage/**
+            '''
         }
+    }
+}
 
         stage('Quality Gate') {
             steps {
