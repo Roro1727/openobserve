@@ -81,4 +81,6 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished. Check Snyk report for vulnerabilities.'
-
+        }
+    }
+}
