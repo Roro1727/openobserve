@@ -26,21 +26,18 @@ pipeline {
 @@ -22,61 +34,52 @@ pipeline {
 
         stage('Snyk Security Scan') {
-            steps {
-                dir('web') {
-                    script {
-                        // Run Snyk test and save JSON
-                        sh 'snyk test --json --severity-threshold=high > snyk_report.json || true'
-
-                        // Convert JSON report to HTML
-                        sh 'snyk-to-html -i snyk_report.json -o snyk_report.html'
-
-                        // Archive the HTML report
-                        archiveArtifacts artifacts: 'web/snyk_report.html', fingerprint: true
-                    }
-                }
+    steps {
+        dir('web') {
+            script {
+                sh '''
+                snyk test --json --severity-threshold=high > snyk_report.json || true
+                snyk-to-html -i snyk_report.json -o snyk_report.html
+                '''
             }
+            archiveArtifacts artifacts: 'web/snyk_report.html', fingerprint: true
         }
+    }
+}
 
 
         stage('SonarQube Analysis') {
