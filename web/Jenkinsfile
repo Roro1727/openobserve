@@ -40,11 +40,10 @@ pipeline {
                 withSonarQubeEnv('SonarQube') {
                     sh '''
                         mvn sonar:sonar \
-                          -Dsonar.projectKey=jenkins-integration \
-                          -Dsonar.projectName="Jenkins Integration" \
-                          -Dsonar.sources=src/main/java \
-                          -Dsonar.tests=src/test/java \
-                          -Dsonar.java.binaries=target/classes
+                          -Dsonar.projectKey=openobserve \
+                          -Dsonar.projectName="Open Observe" \
+                          -Dsonar.sources=web/src \
+                          -Dsonar.exclusions=**/node_modules/**,**/*.test.*
                     '''
                 }
             }
