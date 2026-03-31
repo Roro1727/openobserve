@@ -23,7 +23,14 @@ pipeline {
         stage('Compile Stage') {
             steps {
                 sh 'mvn clean compile'
-@@ -22,61 +34,52 @@ pipeline {
+            }
+        }
+
+        stage('Testing Stage') {
+            steps {
+                sh 'mvn test'
+            }
+        }
 
         stage('Snyk Security Scan') {
     steps {
