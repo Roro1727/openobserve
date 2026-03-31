@@ -37,13 +37,14 @@ pipeline {
             script {
                 sh '''
                 snyk test --json --severity-threshold=high > snyk_report.json || true
-                snyk-to-html -i snyk_report.json -o snyk_report.html
+                npx snyk-to-html -i snyk_report.json -o snyk_report.html
                 '''
             }
             archiveArtifacts artifacts: 'web/snyk_report.html', fingerprint: true
         }
     }
 }
+
 
 
         stage('SonarQube Analysis') {
