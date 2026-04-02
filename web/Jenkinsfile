@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         // Name must match what you set in Global Tool Configuration
-        'dependency-check' 'DC-Check'
+        dependencycheck 'DP-Check'
     }
 
     environment {
@@ -35,7 +35,7 @@ pipeline {
                         --out ./dependency-check-report
                         --prettyPrint
                     ''',
-                    odcInstallation: 'DC-Check'
+                    odcInstallation: 'DP-Check'
                 )
             }
         }
