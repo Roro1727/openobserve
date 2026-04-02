@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         // Name must match what you set in Global Tool Configuration
-        dependencycheck 'DP-Check'
+        'dependency-check' 'DP-Check'
     }
 
     environment {
