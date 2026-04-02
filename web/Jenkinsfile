@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         // Name must match what you set in Global Tool Configuration
-        dependencycheck 'DC-Check'
+        'dependency-check' 'DC-Check'
     }
 
     environment {
