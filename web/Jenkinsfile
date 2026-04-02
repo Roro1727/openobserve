@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        MAVEN_HOME = tool 'maven_3_5_0'
+        MAVEN_HOME = tool 'Maven' //Change name to Maven's Name in Jenkins tools
         PATH = "${MAVEN_HOME}/bin:${env.PATH}"
     }
 
