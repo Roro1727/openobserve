@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         // Name must match what you set in Global Tool Configuration
-        'dependency-check' 'DP-Check'
+        'dependency-check' 'DPCheck'
     }
 
     environment {
@@ -69,11 +69,6 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished.'
-            publishHTML([
-                reportDir: 'dependency-check-report',
-                reportFiles: 'dependency-check-report.html',
-                reportName: 'Dependency Check Report'
-            ])
         }
         success {
             echo '✅ All stages passed successfully!'
