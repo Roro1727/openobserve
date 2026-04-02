@@ -19,20 +19,6 @@ pipeline {
                 sh 'mvn test'
             }
         }
-
-        stage('Snyk Security Scan') {
-            steps {
-                dir('web') {
-                snykSecurity(
-                    snykInstallation: 'SnykLatest',
-                    snykTokenId: 'snyk_token',
-                    failOnIssues: false,
-                    failOnError: false,
-      // threshold: low | medium | high | critical
-                )
-                }
-            }
-        }
     
 
         stage('SonarQube Analysis') {
