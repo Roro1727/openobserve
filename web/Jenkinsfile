@@ -23,7 +23,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
     steps {
-        withSonarQubeEnv('SonarQube') {
+        withSonarQubeEnv('Sonar-Scan') { //Change name to Jenkin Sonarqube Tool Name
             sh '''
                 mvn sonar:sonar \
                   -Dsonar.projectKey=openobserve \
