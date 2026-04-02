@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    tools {
+        // Name must match what you set in Global Tool Configuration
+        dependencycheck 'DC-Check'
+    }
+
     environment {
         MAVEN_HOME = tool 'Maven' //Change name to Maven's Name in Jenkins tools
         PATH = "${MAVEN_HOME}/bin:${env.PATH}"
@@ -17,6 +22,21 @@ pipeline {
         stage('Testing Stage') {
             steps {
                 sh 'mvn test'
+            }
+        }
+        
+    stage('Dependency Check') {
+            steps {
+                dependencyCheck(
+                    additionalArguments: '''
+                        --scan ./
+                        --format XML
+                        --format HTML
+                        --out ./dependency-check-report
+                        --prettyPrint
+                    ''',
+                    odcInstallation: 'DC-Check'
+                )
             }
         }
     
@@ -36,13 +56,7 @@ pipeline {
     }
 }
 
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
+    
 
         stage('Package Stage') {
             steps {
@@ -55,6 +69,11 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished.'
+            publishHTML([
+                reportDir: 'dependency-check-report',
+                reportFiles: 'dependency-check-report.html',
+                reportName: 'Dependency Check Report'
+            ])
         }
         success {
             echo '✅ All stages passed successfully!'
@@ -66,5 +85,6 @@ pipeline {
             echo '❌ Pipeline failed. Check the logs above.'
         }
     }
-
 }
+
+
