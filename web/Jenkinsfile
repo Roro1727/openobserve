@@ -8,12 +8,15 @@ pipeline {
 
     stages {
 
-        stage('Pre-Commit') {
-    steps {
-        sh 'pre-commit run trufflehog --files ./ --show-diff-on-failure | tee pre-commit-report.txt'
-        sh 'cat pre-commit-report.txt'
-    }
-}
+      
+        stage('Secrets Scan') {
+            steps {
+                // Scan current repository
+                sh 'trufflehog git https://github.com/Roro1727/openobserve.git > truffle_report.txt'
+            }
+        }
+    
+
 
 
         stage('Compile Stage') {
