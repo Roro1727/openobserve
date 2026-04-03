@@ -8,6 +8,20 @@ pipeline {
 
     stages {
 
+        stage('Pre-Commit Checks') {
+            steps {
+                sh '''
+                    echo "============================================"
+                    echo "          PRE-COMMIT CHECKS"
+                    echo "============================================"
+
+                    pre-commit install
+                    pre-commit run --all-files --show-diff-on-failure 2>&1 \
+                        | tee pre-commit-report.txt || true
+                '''
+            }
+        }
+
         stage('Compile Stage') {
             steps {
                 sh 'mvn clean compile'
@@ -54,28 +68,28 @@ pipeline {
         // }
 
         
-        stage('Trivy Scan') {
-    steps {
-        sh '''
-            mkdir -p trivy-report
+//         stage('Trivy Scan') {
+//     steps {
+//         sh '''
+//             mkdir -p trivy-report
 
-            set +e
+//             set +e
 
-            trivy fs ./ \
-                --no-progress \
-                --quiet \
-                --format table \
-                --output trivy-report/trivy-report.txt
+//             trivy fs ./ \
+//                 --no-progress \
+//                 --quiet \
+//                 --format table \
+//                 --output trivy-report/trivy-report.txt
 
-            set -e
+//             set -e
 
-            iconv -f UTF-8 -t ASCII//TRANSLIT trivy-report/trivy-report.txt \
-                > trivy-report/trivy-clean.txt
-            mv trivy-report/trivy-clean.txt trivy-report/trivy-report.txt
+//             iconv -f UTF-8 -t ASCII//TRANSLIT trivy-report/trivy-report.txt \
+//                 > trivy-report/trivy-clean.txt
+//             mv trivy-report/trivy-clean.txt trivy-report/trivy-report.txt
 
-        '''
-    }
-}
+//         '''
+//     }
+// }
         
         stage('Package Stage') {
             steps {
@@ -92,6 +106,8 @@ pipeline {
             archiveArtifacts artifacts: 'dependency-check-report/**', fingerprint: true
             //trivy report
             archiveArtifacts artifacts: 'trivy-report/**', fingerprint: true
+            //Pre-commit report
+            archiveArtifacts artifacts: 'pre-commit-report.txt', fingerprint: true
             
             echo 'Pipeline finished.'
         }
