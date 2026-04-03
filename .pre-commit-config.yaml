@@ -1,17 +1,5 @@
 repos:
-- repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
-    hooks:
-      - id: check-yaml
-        args:
-          - --allow-multiple-documents
-      - id: check-json
-      - id: check-merge-conflict
-      - id: detect-private-key
-      - id: check-added-large-files
-        args:
-          - --maxkb=1000
--   repo: https://github.com/psf/black
-    rev: 22.10.0
-    hooks:
-    -   id: black
+- repo: https://github.com/trufflesecurity/trufflehog 
+    rev: main 
+    hooks: 
+      - id: trufflehog 
