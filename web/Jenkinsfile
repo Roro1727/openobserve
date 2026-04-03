@@ -22,16 +22,20 @@ pipeline {
         
     stage('Dependency Check') {
             steps {
-                dependencyCheck(
-                    sh '''
-                    /opt/dependency-check/bin/dependency-check.sh \
-                        --scan ./ \
-                        --format XML \
-                        --format HTML \
-                        --out ./dependency-check-report \
-                        --prettyPrint
-                '''
-                )
+                sh '/opt/dependency-check/bin/dependency-check.sh --scan ./ --format XML --format HTML --out ./dependency-check-report --prettyPrint'
+            }
+            post {
+                always {
+                    dependencyCheckPublisher(
+                        pattern: '**/dependency-check-report.xml',
+                        failedTotalCritical: 1,
+                        unstableTotalHigh: 5
+                    )
+                    archiveArtifacts(
+                        artifacts: 'dependency-check-report/**',
+                        allowEmptyArchive: true
+                    )
+                }
             }
         }
     
