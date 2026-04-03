@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        MAVEN_HOME = tool 'Maven' //Change name to Maven's Name in Jenkins tools
+        MAVEN_HOME = tool 'Maven'
         PATH = "${MAVEN_HOME}/bin:${env.PATH}"
     }
 
@@ -19,8 +19,8 @@ pipeline {
                 sh 'mvn test'
             }
         }
-        
-    stage('Dependency Check') {
+
+        stage('Dependency Check') {
             steps {
                 withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_KEY')]) {
                     sh '''
@@ -37,24 +37,21 @@ pipeline {
                 }
             }
         }
-    
 
         stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv('Sonar-Scan') { //Change name to Jenkin Sonarqube Tool Name
-            sh '''
-                mvn sonar:sonar \
-                  -Dsonar.projectKey=openobserve \
-                  -Dsonar.projectName="Open Observe" \
-                  -Dsonar.sources=web/src \
-                  -Dsonar.javascript.node.maxspace=4096 \
-                  -Dsonar.exclusions=**/node_modules/**,**/*.test.*,**/*.spec.*,**/test_logs.json,**/dist/**,**/build/**,**/__tests__/**,**/*.min.js,**/*.d.ts,**/coverage/**
-            '''
+            steps {
+                withSonarQubeEnv('Sonar-Scan') {
+                    sh '''
+                        mvn sonar:sonar \
+                            -Dsonar.projectKey=openobserve \
+                            -Dsonar.projectName="Open Observe" \
+                            -Dsonar.sources=web/src \
+                            -Dsonar.javascript.node.maxspace=4096 \
+                            -Dsonar.exclusions=**/node_modules/**,**/*.test.*,**/*.spec.*,**/test_logs.json,**/dist/**,**/build/**,**/__tests__/**,**/*.min.js,**/*.d.ts,**/coverage/**
+                    '''
+                }
+            }
         }
-    }
-}
-
-    
 
         stage('Package Stage') {
             steps {
@@ -66,26 +63,18 @@ pipeline {
 
     post {
         always {
-            // Publish the HTML report inside Jenkins
-            publishHTML(target: [
-                allowMissing         : false,
-                alwaysLinkToLastBuild: true,
-                keepAll              : true,
-                reportDir            : 'dependency-check-report',
-                reportFiles          : 'dependency-check-report.html',
-                reportName           : 'OWASP Dependency Check Report'
-            ])
-
-            // Archive XML report as artifact
+            dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
             archiveArtifacts artifacts: 'dependency-check-report/**', fingerprint: true
+            echo 'Pipeline finished.'
         }
         success {
-            echo '✅ Dependency Check passed!'
+            echo '✅ All stages passed successfully!'
+        }
+        unstable {
+            echo '⚠️ Pipeline completed with warnings.'
         }
         failure {
-            echo '❌ Dependency Check failed. Review the report.'
-}
+            echo '❌ Pipeline failed. Check the logs above.'
+        }
     }
 }
-
-
