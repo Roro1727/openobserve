@@ -25,15 +25,15 @@ pipeline {
                 withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_KEY')]) {
                     sh '''
                         /opt/dependency-check/bin/dependency-check.sh \
-                            --scan ./web \
-                            --exclude "**/node_modules/**" \
-                            --format XML \
+                            --scan ./ \
+                            --exclude "**/node_modules/**" \ 
+                            --format XML \ 
                             --format HTML \
                             --out ./dependency-check-report \
                             --data /opt/dependency-check/data \
                             --nvdApiKey $NVD_KEY \
                             --prettyPrint
-                    '''
+                    ''' //--scan <target-path> 
                 }
             }
         }
@@ -43,12 +43,12 @@ pipeline {
                 withSonarQubeEnv('Sonar-Scan') {
                     sh '''
                         mvn sonar:sonar \
-                            -Dsonar.projectKey=openobserve \
+                            -Dsonar.projectKey=openobserve \ 
                             -Dsonar.projectName="Open Observe" \
                             -Dsonar.sources=web/src \
                             -Dsonar.javascript.node.maxspace=4096 \
                             -Dsonar.exclusions=**/node_modules/**,**/*.test.*,**/*.spec.*,**/test_logs.json,**/dist/**,**/build/**,**/__tests__/**,**/*.min.js,**/*.d.ts,**/coverage/**
-                    '''
+                    ''' //source should be path to scan 
                 }
             }
         }
