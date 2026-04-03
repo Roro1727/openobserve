@@ -10,7 +10,7 @@ pipeline {
 
         stage('Pre-Commit') {
     steps {
-        sh 'pre-commit tailsman run --files ./ --show-diff-on-failure | tee pre-commit-report.txt'
+        sh 'pre-commit run tailsman --files ./ --show-diff-on-failure | tee pre-commit-report.txt'
         sh 'cat pre-commit-report.txt'
     }
 }
