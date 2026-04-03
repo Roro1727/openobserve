@@ -71,11 +71,7 @@ pipeline {
                 --output trivy-report/trivy-report.html
 
             set -e
-            
-            echo "============================================"
-            echo "            TRIVY SCAN SUMMARY              "
-            echo "============================================"
-            cat trivy-report/trivy-report.html
+
         '''
     }
 }
