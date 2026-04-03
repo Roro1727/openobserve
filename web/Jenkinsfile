@@ -62,8 +62,6 @@ pipeline {
             set +e
 
             trivy fs ./ \
-                --scanners vuln,misconfig,secret \
-                --severity HIGH,CRITICAL \
                 --no-progress \
                 --quiet \
                 --format table \
@@ -75,10 +73,6 @@ pipeline {
                 > trivy-report/trivy-clean.txt
             mv trivy-report/trivy-clean.txt trivy-report/trivy-report.txt
 
-            echo "============================================"
-            echo "            TRIVY SCAN SUMMARY"
-            echo "============================================"
-            cat trivy-report/trivy-report.txt
         '''
     }
 }
