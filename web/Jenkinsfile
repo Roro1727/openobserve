@@ -22,7 +22,7 @@ pipeline {
         
     stage('Dependency Check') {
             steps {
-                    sh '/opt/dependency-check/bin/dependency-check.sh --scan ./target --format XML --format HTML --out ./dependency-check-report --data /opt/dependency-check/data --prettyPrint'
+                    sh '/opt/dependency-check/bin/dependency-check.sh --scan ./web --format XML --format HTML --out ./dependency-check-report --data /opt/dependency-check/data --prettyPrint'
             }
             post {
                 always {
