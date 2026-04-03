@@ -1,5 +1,5 @@
 repos:
-- repo: https://github.com/trufflesecurity/trufflehog 
-    rev: main 
-    hooks: 
-      - id: trufflehog 
+- repo: https://github.com/PeterMosmans/jenkinslint
+  rev: master
+  hooks:
+   - id: jenkinslint
