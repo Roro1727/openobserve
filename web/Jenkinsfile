@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        MAVEN_HOME = tool 'Maven'
+        MAVEN_HOME = tool 'Maven' //Name the tool correctly should match Jenkin tool name
         PATH = "${MAVEN_HOME}/bin:${env.PATH}"
     }
 
@@ -57,25 +57,30 @@ pipeline {
                 sh '''
                     mkdir -p trivy-report
 
-                    # --- Filesystem scan (catches secrets, misconfigs, package vulns) ---
-                    trivy fs ./ \
-                        --scanners vuln,secret,misconfig \
-                        --severity HIGH,CRITICAL \
-                        --ignorefile .trivyignore 2>/dev/null || true \
-                        --format table \
-                        --output trivy-report/trivy-fs-report.txt
+            # Allow non-zero exit (vulnerabilities found) without failing the stage
+            set +e
 
-                    # --- JSON report (for archiving / integrations) ---
-                    trivy fs ./ \
-                        --scanners vuln,secret,misconfig \
-                        --severity HIGH,CRITICAL \
-                        --ignorefile .trivyignore 2>/dev/null || true \
-                        --format json \
-                        --output trivy-report/trivy-fs-report.json
+            # --- Table report (human readable, printed in console) ---
+            trivy fs ./ \
+                --scanners vuln,secret,misconfig \
+                --severity HIGH,CRITICAL \
+                --ignorefile web/.trivyignore \
+                --format table \
+                --output trivy-report/trivy-fs-report.txt
 
-                    echo "✅ Trivy scan complete."
-                    echo "--- Trivy Summary ---"
-                    cat trivy-report/trivy-fs-report.txt
+            # --- JSON report (for archiving) ---
+            trivy fs ./ \
+                --scanners vuln,secret,misconfig \
+                --severity HIGH,CRITICAL \
+                --ignorefile web/.trivyignore \
+                --format json \
+                --output trivy-report/trivy-fs-report.json
+
+            set -e
+
+            echo "✅ Trivy scan complete."
+            echo "--- Trivy Summary ---"
+            cat trivy-report/trivy-fs-report.txt
                 '''
             }
         }
