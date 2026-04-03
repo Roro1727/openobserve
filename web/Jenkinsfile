@@ -23,20 +23,17 @@ pipeline {
     stage('Dependency Check') {
             steps {
         withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_KEY')]) {
-                sh "/opt/dependency-check/bin/dependency-check.sh --scan ./web --exclude '**/node_modules/**' --format XML --format HTML --out ./dependency-check-report --data /opt/dependency-check/data --nvdApiKey $NVD_KEY --prettyPrint"
-        }
-            post {
-                always {
-                    dependencyCheckPublisher(
-                        pattern: '**/dependency-check-report.xml',
-                        failedTotalCritical: 1,
-                        unstableTotalHigh: 5
-                    )
-                    archiveArtifacts(
-                        artifacts: 'dependency-check-report/**',
-                        allowEmptyArchive: true
-                    )
-                }
+            sh '''
+                /opt/dependency-check/bin/dependency-check.sh \
+                    --scan ./web \
+                    --exclude '**/node_modules/**' \
+                    --format XML \
+                    --format HTML \
+                    --out ./dependency-check-report \
+                    --data /opt/dependency-check/data \
+                    --nvdApiKey $NVD_KEY \
+                    --prettyPrint
+            '''
             }
         }
     }
