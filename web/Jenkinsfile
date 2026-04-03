@@ -43,7 +43,7 @@ pipeline {
                 withSonarQubeEnv('Sonar-Scan') {
                     sh '''
                         mvn sonar:sonar \
-                            -Dsonar.projectKey=openobserve \ 
+                            -Dsonar.projectKey=openobserve \
                             -Dsonar.projectName="Open Observe" \
                             -Dsonar.sources=web/src \
                             -Dsonar.javascript.node.maxspace=4096 \
