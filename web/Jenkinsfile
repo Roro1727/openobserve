@@ -11,7 +11,6 @@ pipeline {
         stage('Pre-Commit Checks') {
             steps {
                 sh '''
-                pre-commit install
                 pre-commit run --all-files
                 | tee pre-commit-report.txt || true
                 
