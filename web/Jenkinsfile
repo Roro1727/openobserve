@@ -12,7 +12,7 @@ pipeline {
         stage('Secrets Scan') {
             steps {
                 // Scan current repository
-                sh 'trufflehog git https://github.com/Roro1727/openobserve.git > truffle_report.txt'
+                sh 'trufflehog filesystem . --no-update > truffle_report.txt'
             }
         }
     
