@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        // Name must match what you set in Global Tool Configuration
-        'dependency-check' 'DPCheck'
-    }
-
     environment {
         MAVEN_HOME = tool 'Maven' //Change name to Maven's Name in Jenkins tools
         PATH = "${MAVEN_HOME}/bin:${env.PATH}"
