@@ -11,9 +11,10 @@ pipeline {
         stage('Pre-Commit Checks') {
             steps {
                 sh '''
-                    pre-commit install
-                    pre-commit run --all-files --show-diff-on-failure 2>&1 \
-                        | tee pre-commit-report.txt || true
+                git config --unset-all core.hooksPath || true
+                
+                pre-commit run --all-files --show-diff-on-failure 2>&1 \
+                | tee pre-commit-report.txt || true
                 '''
             }
         }
