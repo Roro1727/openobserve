@@ -52,43 +52,74 @@ pipeline {
                 }
             }
         }
+
+        
         stage('Trivy Scan') {
     steps {
         sh '''
             mkdir -p trivy-report
 
+            # Force UTF-8 + disable colors for clean output
+            export LANG=en_US.UTF-8
+            export LC_ALL=en_US.UTF-8
+            export TRIVY_NO_COLOR=true
+            export TRIVY_DISABLE_VEX_NOTICE=true
+
             set +e
 
-            # --- Table report ---
+            # --- Vulnerability scan ---
             trivy fs ./ \
-                --scanners vuln,secret,misconfig \
+                --scanners vuln \
                 --severity HIGH,CRITICAL \
                 --no-progress \
-                --timeout 10m \
+                --quiet \
                 --format table \
-                --output trivy-report/trivy-fs-report.txt
-            TABLE_EXIT=$?
+                --output trivy-report/trivy-vuln-report.txt
 
-            # --- JSON report ---
+            # --- Misconfig scan ---
+            trivy fs ./ \
+                --scanners misconfig \
+                --severity HIGH,CRITICAL \
+                --no-progress \
+                --quiet \
+                --format table \
+                --output trivy-report/trivy-misconfig-report.txt
+
+            # --- Secret scan ---
+            trivy fs ./ \
+                --scanners secret \
+                --no-progress \
+                --quiet \
+                --format table \
+                --output trivy-report/trivy-secret-report.txt
+
+            # --- Combined JSON for archiving ---
             trivy fs ./ \
                 --scanners vuln,secret,misconfig \
                 --severity HIGH,CRITICAL \
                 --no-progress \
-                --timeout 10m \
+                --quiet \
                 --format json \
-                --output trivy-report/trivy-fs-report.json
+                --output trivy-report/trivy-full-report.json
 
             set -e
 
-            echo "✅ Trivy scan complete."
-            echo "--- Trivy Summary ---"
+            echo "============================================"
+            echo "         TRIVY VULNERABILITY REPORT         "
+            echo "============================================"
+            cat trivy-report/trivy-vuln-report.txt
 
-            if [ -f trivy-report/trivy-fs-report.txt ]; then
-                cat trivy-report/trivy-fs-report.txt
-            else
-                echo "⚠️ Report file not generated. Trivy exit code was: $TABLE_EXIT"
-                echo "Check console output above for Trivy errors."
-            fi
+            echo ""
+            echo "============================================"
+            echo "        TRIVY MISCONFIGURATION REPORT       "
+            echo "============================================"
+            cat trivy-report/trivy-misconfig-report.txt
+
+            echo ""
+            echo "============================================"
+            echo "            TRIVY SECRET REPORT             "
+            echo "============================================"
+            cat trivy-report/trivy-secret-report.txt
         '''
     }
 }
