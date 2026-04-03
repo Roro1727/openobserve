@@ -26,8 +26,8 @@ pipeline {
                     sh '''
                         /opt/dependency-check/bin/dependency-check.sh \
                             --scan ./ \
-                            --exclude "**/node_modules/**" \ 
-                            --format XML \ 
+                            --exclude "**/node_modules/**" \
+                            --format XML \
                             --format HTML \
                             --out ./dependency-check-report \
                             --data /opt/dependency-check/data \
