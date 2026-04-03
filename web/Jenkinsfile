@@ -11,10 +11,6 @@ pipeline {
         stage('Pre-Commit Checks') {
             steps {
                 sh '''
-                    echo "============================================"
-                    echo "          PRE-COMMIT CHECKS"
-                    echo "============================================"
-
                     pre-commit install
                     pre-commit run --all-files --show-diff-on-failure 2>&1 \
                         | tee pre-commit-report.txt || true
