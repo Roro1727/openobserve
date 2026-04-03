@@ -52,7 +52,35 @@ pipeline {
                 }
             }
         }
+        stage('Trivy Scan') {
+            steps {
+                sh '''
+                    mkdir -p trivy-report
 
+                    # --- Filesystem scan (catches secrets, misconfigs, package vulns) ---
+                    trivy fs ./ \
+                        --scanners vuln,secret,misconfig \
+                        --severity HIGH,CRITICAL \
+                        --ignorefile .trivyignore 2>/dev/null || true \
+                        --format table \
+                        --output trivy-report/trivy-fs-report.txt
+
+                    # --- JSON report (for archiving / integrations) ---
+                    trivy fs ./web \
+                        --scanners vuln,secret,misconfig \
+                        --severity HIGH,CRITICAL \
+                        --ignorefile .trivyignore 2>/dev/null || true \
+                        --format json \
+                        --output trivy-report/trivy-fs-report.json
+
+                    echo "✅ Trivy scan complete."
+                    echo "--- Trivy Summary ---"
+                    cat trivy-report/trivy-fs-report.txt
+                '''
+            }
+        }
+
+        
         stage('Package Stage') {
             steps {
                 sh 'mvn package'
@@ -63,8 +91,12 @@ pipeline {
 
     post {
         always {
+            //Depenency check report
             dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
             archiveArtifacts artifacts: 'dependency-check-report/**', fingerprint: true
+            //trivy report
+            archiveArtifacts artifacts: 'trivy-report/**', fingerprint: true
+            
             echo 'Pipeline finished.'
         }
         success {
