@@ -59,67 +59,21 @@ pipeline {
         sh '''
             mkdir -p trivy-report
 
-            # Force UTF-8 + disable colors for clean output
-            export LANG=en_US.UTF-8
-            export LC_ALL=en_US.UTF-8
-            export TRIVY_NO_COLOR=true
-            export TRIVY_DISABLE_VEX_NOTICE=true
-
-            set +e
-
-            # --- Vulnerability scan ---
             trivy fs ./ \
-                --scanners vuln \
+                --scanners vuln,misconfig,secret \
                 --severity HIGH,CRITICAL \
                 --no-progress \
                 --quiet \
-                --format table \
-                --output trivy-report/trivy-vuln-report.txt
-
-            # --- Misconfig scan ---
-            trivy fs ./ \
-                --scanners misconfig \
-                --severity HIGH,CRITICAL \
-                --no-progress \
-                --quiet \
-                --format table \
-                --output trivy-report/trivy-misconfig-report.txt
-
-            # --- Secret scan ---
-            trivy fs ./ \
-                --scanners secret \
-                --no-progress \
-                --quiet \
-                --format table \
-                --output trivy-report/trivy-secret-report.txt
-
-            # --- Combined JSON for archiving ---
-            trivy fs ./ \
-                --scanners vuln,secret,misconfig \
-                --severity HIGH,CRITICAL \
-                --no-progress \
-                --quiet \
-                --format json \
-                --output trivy-report/trivy-full-report.json
+                --format template \
+                --template "@/usr/local/share/trivy/templates/html.tpl" \
+                --output trivy-report/trivy-report.html
 
             set -e
-
+            
             echo "============================================"
-            echo "         TRIVY VULNERABILITY REPORT         "
+            echo "            TRIVY SCAN SUMMARY              "
             echo "============================================"
-            cat trivy-report/trivy-vuln-report.txt
-
-            echo ""
-            echo "============================================"
-            echo "        TRIVY MISCONFIGURATION REPORT       "
-            echo "============================================"
-            cat trivy-report/trivy-misconfig-report.txt
-
-            echo ""
-            echo "============================================"
-            echo "            TRIVY SECRET REPORT             "
-            echo "============================================"
-            cat trivy-report/trivy-secret-report.txt
+            cat trivy-report/trivy-report.txt
         '''
     }
 }
