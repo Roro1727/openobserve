@@ -53,26 +53,28 @@ pipeline {
             }
         }
         stage('Trivy Scan') {
-            steps {
-                sh '''
-                    mkdir -p trivy-report
+    steps {
+        sh '''
+            mkdir -p trivy-report
 
-            # Allow non-zero exit (vulnerabilities found) without failing the stage
             set +e
 
-            # --- Table report (human readable, printed in console) ---
+            # --- Table report ---
             trivy fs ./ \
                 --scanners vuln,secret,misconfig \
                 --severity HIGH,CRITICAL \
-                --ignorefile web/.trivyignore \
+                --no-progress \
+                --timeout 10m \
                 --format table \
                 --output trivy-report/trivy-fs-report.txt
+            TABLE_EXIT=$?
 
-            # --- JSON report (for archiving) ---
+            # --- JSON report ---
             trivy fs ./ \
                 --scanners vuln,secret,misconfig \
                 --severity HIGH,CRITICAL \
-                --ignorefile web/.trivyignore \
+                --no-progress \
+                --timeout 10m \
                 --format json \
                 --output trivy-report/trivy-fs-report.json
 
@@ -80,11 +82,16 @@ pipeline {
 
             echo "✅ Trivy scan complete."
             echo "--- Trivy Summary ---"
-            cat trivy-report/trivy-fs-report.txt
-                '''
-            }
-        }
 
+            if [ -f trivy-report/trivy-fs-report.txt ]; then
+                cat trivy-report/trivy-fs-report.txt
+            else
+                echo "⚠️ Report file not generated. Trivy exit code was: $TABLE_EXIT"
+                echo "Check console output above for Trivy errors."
+            fi
+        '''
+    }
+}
         
         stage('Package Stage') {
             steps {
