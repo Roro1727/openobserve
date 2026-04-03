@@ -62,9 +62,6 @@ pipeline {
             set +e
             
             trivy fs ./ \
-                --scanners vuln,misconfig,secret \
-                --severity HIGH,CRITICAL \
-                --no-progress \
                 --quiet \
                 --format template \
                 --template "@/usr/local/share/trivy/templates/html.tpl" \
