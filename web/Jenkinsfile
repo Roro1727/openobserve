@@ -71,20 +71,9 @@ pipeline {
 
             set -e
 
-            # Replace UTF-8 box-drawing characters with ASCII equivalents
-            sed -i \
-                -e 's/\xe2\x94\x82/|/g' \
-                -e 's/\xe2\x94\x80/-/g' \
-                -e 's/\xe2\x94\xbc/+/g' \
-                -e 's/\xe2\x94\x8c/+/g' \
-                -e 's/\xe2\x94\x90/+/g' \
-                -e 's/\xe2\x94\x94/+/g' \
-                -e 's/\xe2\x94\x98/+/g' \
-                -e 's/\xe2\x94\x9c/+/g' \
-                -e 's/\xe2\x94\xa4/+/g' \
-                -e 's/\xe2\x95\x91/|/g' \
-                -e 's/\xe2\x95\x90/-/g' \
-                trivy-report/trivy-report.txt
+            iconv -f UTF-8 -t ASCII//TRANSLIT trivy-report/trivy-report.txt \
+                > trivy-report/trivy-clean.txt
+            mv trivy-report/trivy-clean.txt trivy-report/trivy-report.txt
 
             echo "============================================"
             echo "            TRIVY SCAN SUMMARY"
