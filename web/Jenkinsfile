@@ -75,7 +75,7 @@ pipeline {
             echo "============================================"
             echo "            TRIVY SCAN SUMMARY              "
             echo "============================================"
-            cat trivy-report/trivy-report.txt
+            cat trivy-report/trivy-report.html
         '''
     }
 }
