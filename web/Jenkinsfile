@@ -8,14 +8,14 @@ pipeline {
 
     stages {
 
-        stage('Pre-Commit Checks') {
-            steps {
-                sh '''
-                pre-commit run --all-files 2>&1 | tee pre-commit-report.txt
-                
-                '''
-            }
-        }
+        stage('Linting') {
+    steps {
+        sh 'pip install pre-commit'
+        sh 'pre-commit run --all-files --show-diff-on-failure | tee pre-commit-report.txt'
+        sh 'cat pre-commit-report.txt'
+    }
+}
+
 
         stage('Compile Stage') {
             steps {
