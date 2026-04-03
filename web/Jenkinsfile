@@ -104,7 +104,7 @@ pipeline {
             //trivy report
             archiveArtifacts artifacts: 'trivy-report/**', fingerprint: true
             //Pre-commit report
-            archiveArtifacts artifacts: 'pre-commit-report.txt', fingerprint: true
+            archiveArtifacts artifacts: 'truffle_report.txt', fingerprint: true
             
             echo 'Pipeline finished.'
         }
