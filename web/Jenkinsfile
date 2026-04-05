@@ -90,18 +90,31 @@ pipeline {
         stage('OWASP ZAP Scan') {
     steps {
         sh '''
-            mkdir -p zap-report
+            mkdir -p /tmp/zap-report
 
             set +e
 
             /opt/zaproxy/zap.sh -cmd \
                 -quickurl https://172.16.14.71/ \
                 -quickprogress \
-                -quickout ${WORKSPACE}/zap-report/zap-report.html
+                -quickout /tmp/zap-report/zap-report.html
+
+            ZAP_EXIT=$?
 
             set -e
 
-            echo "✅ ZAP scan complete."
+            # Copy report to workspace for archiving
+            cp -r /tmp/zap-report ${WORKSPACE}/zap-report
+
+            echo "============================================"
+            echo "         ZAP SCAN COMPLETE"
+            echo "============================================"
+
+            if [ -f /tmp/zap-report/zap-report.html ]; then
+                echo "✅ ZAP report generated successfully"
+            else
+                echo "⚠️ ZAP exited with code: $ZAP_EXIT"
+            fi
         '''
     }
     post {
@@ -128,6 +141,9 @@ pipeline {
             archiveArtifacts artifacts: 'trivy-report/**', fingerprint: true
             //Pre-commit report
             archiveArtifacts artifacts: 'truffle_report.txt', fingerprint: true
+            //ZAP report
+            archiveArtifacts artifacts: 'zap-report/**', fingerprint: true
+
             
             echo 'Pipeline finished.'
         }
