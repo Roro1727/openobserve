@@ -103,8 +103,9 @@ pipeline {
 
             set -e
 
-            # Copy report to workspace for archiving
-            cp -r /tmp/zap-report ${WORKSPACE}/zap-report
+            # Quote the path to handle spaces in workspace name
+            mkdir -p "/var/lib/jenkins/workspace/DevOps Pipeline@2/zap-report"
+            cp -r /tmp/zap-report/. "/var/lib/jenkins/workspace/DevOps Pipeline@2/zap-report/"
 
             echo "============================================"
             echo "         ZAP SCAN COMPLETE"
