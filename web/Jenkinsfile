@@ -25,7 +25,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_KEY')]) {
                     sh '''
                         /opt/dependency-check/bin/dependency-check.sh \
-                            --scan ${WORKSPACE} \
+                            --scan "${WORKSPACE}" \
                             --exclude "**/node_modules/**" \
                             --format XML \
                             --format HTML \
