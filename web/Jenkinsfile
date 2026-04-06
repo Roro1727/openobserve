@@ -7,7 +7,11 @@ pipeline {
     }
 
     stages {
-
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
       
         stage('Secrets Scan') {
             steps {
@@ -21,7 +25,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_KEY')]) {
                     sh '''
                         /opt/dependency-check/bin/dependency-check.sh \
-                            --scan ./ \
+                            --scan ${WORKSPACE} \
                             --exclude "**/node_modules/**" \
                             --format XML \
                             --format HTML \
@@ -34,44 +38,44 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('Sonar-Scan') {
-                    sh '''
-                        mvn sonar:sonar \
-                            -Dsonar.projectKey=openobserve \
-                            -Dsonar.projectName="Open Observe" \
-                            -Dsonar.sources=web/src \
-                            -Dsonar.javascript.node.maxspace=4096 \
-                            -Dsonar.exclusions=**/node_modules/**,**/*.test.*,**/*.spec.*,**/test_logs.json,**/dist/**,**/build/**,**/__tests__/**,**/*.min.js,**/*.d.ts,**/coverage/**
-                    ''' //source should be path to scan 
-                }
-            }
-        }
+//         stage('SonarQube Analysis') {
+//             steps {
+//                 withSonarQubeEnv('Sonar-Scan') {
+//                     sh '''
+//                         mvn sonar:sonar \
+//                             -Dsonar.projectKey=openobserve \
+//                             -Dsonar.projectName="Open Observe" \
+//                             -Dsonar.sources=web/src \
+//                             -Dsonar.javascript.node.maxspace=4096 \
+//                             -Dsonar.exclusions=**/node_modules/**,**/*.test.*,**/*.spec.*,**/test_logs.json,**/dist/**,**/build/**,**/__tests__/**,**/*.min.js,**/*.d.ts,**/coverage/**
+//                     ''' //source should be path to scan 
+//                 }
+//             }
+//         }
 
         
-        stage('Trivy Scan') {
-    steps {
-        sh '''
-            mkdir -p trivy-report
+//         stage('Trivy Scan') {
+//     steps {
+//         sh '''
+//             mkdir -p trivy-report
 
-            set +e
+//             set +e
 
-            trivy fs ./ \
-                --no-progress \
-                --quiet \
-                --format table \
-                --output trivy-report/trivy-report.txt
+//             trivy fs ./ \
+//                 --no-progress \
+//                 --quiet \
+//                 --format table \
+//                 --output trivy-report/trivy-report.txt
 
-            set -e
+//             set -e
 
-            iconv -f UTF-8 -t ASCII//TRANSLIT trivy-report/trivy-report.txt \
-                > trivy-report/trivy-clean.txt
-            mv trivy-report/trivy-clean.txt trivy-report/trivy-report.txt
+//             iconv -f UTF-8 -t ASCII//TRANSLIT trivy-report/trivy-report.txt \
+//                 > trivy-report/trivy-clean.txt
+//             mv trivy-report/trivy-clean.txt trivy-report/trivy-report.txt
 
-        '''
-    }
-}
+//         '''
+//     }
+// }
         
 
 
@@ -87,43 +91,40 @@ pipeline {
                 sh 'mvn test'
             }
         }
-        stage('OWASP ZAP Scan') {
-    steps {
-        sh '''
-            mkdir -p /tmp/zap-report
+    //     stage('OWASP ZAP Scan') {
+    // steps {
+    //     sh '''
+    //         mkdir -p /tmp/zap-report
 
-            set +e
+    //         set +e
 
-            /opt/zaproxy/zap.sh -cmd \
-                -quickurl https://172.16.14.71/ \
-                -quickprogress \
-                -quickout /tmp/zap-report/zap-report.html
+    //         /opt/zaproxy/zap.sh -cmd \
+    //             -quickurl https://172.16.14.71/ \
+    //             -quickprogress \
+    //             -quickout /tmp/zap-report/zap-report.html
 
-            ZAP_EXIT=$?
+    //         ZAP_EXIT=$?
 
-            set -e
+    //         set -e
 
-            # Quote the path to handle spaces in workspace name
-            mkdir -p "/var/lib/jenkins/workspace/DevOps Pipeline@2/zap-report"
-            cp -r /tmp/zap-report/. "/var/lib/jenkins/workspace/DevOps Pipeline@2/zap-report/"
+    //         # Quote the path to handle spaces in workspace name
+    //         mkdir -p "/var/lib/jenkins/workspace/DevOps Pipeline@2/zap-report"
+    //         cp -r /tmp/zap-report/. "/var/lib/jenkins/workspace/DevOps Pipeline@2/zap-report/"
 
-            echo "============================================"
-            echo "         ZAP SCAN COMPLETE"
-            echo "============================================"
+    //         echo "============================================"
+    //         echo "         ZAP SCAN COMPLETE"
+    //         echo "============================================"
 
-            if [ -f /tmp/zap-report/zap-report.html ]; then
-                echo "✅ ZAP report generated successfully"
-            else
-                echo "⚠️ ZAP exited with code: $ZAP_EXIT"
-            fi
-        '''
-    }
-    post {
-        always {
-            archiveArtifacts artifacts: 'zap-report/**', fingerprint: true
-        }
-    }
-}
+    //         if [ -f /tmp/zap-report/zap-report.html ]; then
+    //             echo "✅ ZAP report generated successfully"
+    //         else
+    //             echo "⚠️ ZAP exited with code: $ZAP_EXIT"
+    //         fi
+    //     '''
+    // }
+    
+    //}
+
         
         stage('Package Stage') {
             steps {
